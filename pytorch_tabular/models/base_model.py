@@ -189,7 +189,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
 #        return loss
     
     def training_step(self, batch, batch_idx):
-        optimizer = self.optimizer()
+        optimizer = self.model.optimizers()
 
         # first forward-backward pass
         y = batch["target"]
