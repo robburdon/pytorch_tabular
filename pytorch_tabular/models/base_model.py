@@ -197,12 +197,12 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         loss_1 = self.calculate_loss(y, y_hat, tag="train")
         _ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
         
-        self.manual_backward(loss_1 , optimizer)
+        self.manual_backward(loss_1 , optimizer, retain_graph=True)
         optimizer.first_step(zero_grad=True)
 
         # second forward-backward pass
         loss_2 = self.calculate_loss(y, y_hat, tag="train")
-        _ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
+        #_ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
         
         self.manual_backward(loss_2 , optimizer)
         optimizer.second_step(zero_grad=True)
