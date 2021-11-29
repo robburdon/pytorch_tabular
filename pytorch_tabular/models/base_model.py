@@ -206,6 +206,8 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         
         self.manual_backward(loss_2 , optimizer)
         optimizer.second_step(zero_grad=True)
+        
+        self.trainer.train_loop.running_loss.append(loss_1)
 
         return loss_1
 
