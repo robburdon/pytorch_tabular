@@ -60,7 +60,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         self._build_network()
         self._setup_loss()
         self._setup_metrics()
-        self.automatic_optimization = False
+        self.automatic_optimization = True
 
     @abstractmethod
     def _build_network(self):
