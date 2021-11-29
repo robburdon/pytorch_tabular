@@ -194,14 +194,14 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         # first forward-backward pass
         y = batch["target"]
         y_hat = self(batch)["logits"]
-        loss_1 = self.calculate_loss(y, y_hat, tag="train")
+        loss_1 = self.loss(y, y_hat)
         #_ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
         
         self.manual_backward(loss_1 , optimizer, retain_graph=True)
         optimizer.first_step(zero_grad=True)
 
         # second forward-backward pass
-        loss_2 = self.calculate_loss(y, y_hat, tag="train")
+        loss_2 = self.loss(y, y_hat)
         #_ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
         
         self.manual_backward(loss_2 , optimizer)
