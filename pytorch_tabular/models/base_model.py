@@ -12,7 +12,11 @@ import torchmetrics
 import torch.nn as nn
 from omegaconf import DictConfig
 
+#my imports
 from sam import SAM
+from torch.optim import SGD
+
+#
 
 try:
     import wandb
