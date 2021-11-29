@@ -189,27 +189,26 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
 #        return loss
     
     def training_step(self, batch, batch_idx):
+        
         optimizer = self.optimizers()
-
-        # first forward-backward pass
+        
+        def closure():
+            loss = self.calculate_loss(y, y_hat, tag="train")
+            self.manual_backward(loss, optimizer)
+            return loss
+        
         y = batch["target"]
         y_hat = self(batch)["logits"]
-        loss_1 = self.calculate_loss(y, y_hat)
-        #_ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
-        
-        self.manual_backward(loss_1 , optimizer)
-        optimizer.first_step(zero_grad=True)
 
-        # second forward-backward pass
-        loss_2 = self.calculate_loss(y, y_hat)
-        #_ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
+        loss = self.calculate_loss(y, y_hat, tag="train")
+        self.manual_backward(loss, optimizer)
+        optimizer.optimizer.step(closure=closure)
+        optimizer.optimizer.zero_grad()
         
-        self.manual_backward(loss_2 , optimizer)
-        optimizer.second_step(zero_grad=True)
         
-        self.trainer.train_loop.running_loss.append(loss_1)
+        #self.trainer.train_loop.running_loss.append(loss_1)
 
-        return loss_1
+        return loss
 
     def training_step_end(self, batch, batch_idx):
         pass
