@@ -12,6 +12,8 @@ import torchmetrics
 import torch.nn as nn
 from omegaconf import DictConfig
 
+from sam import SAM
+
 try:
     import wandb
     import plotly.graph_objects as go
@@ -54,6 +56,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         self._build_network()
         self._setup_loss()
         self._setup_metrics()
+        self.automatic_optimization = False
 
     @abstractmethod
     def _build_network(self):
@@ -174,12 +177,33 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         else:
             return ret_value.get("logits")
 
+#    def training_step(self, batch, batch_idx):
+#        y = batch["target"]
+#        y_hat = self(batch)["logits"]
+#        loss = self.calculate_loss(y, y_hat, tag="train")
+#        _ = self.calculate_metrics(y, y_hat, tag="train")
+#        return loss
+    
     def training_step(self, batch, batch_idx):
+        optimizer = self._optimizer()
+
+        # first forward-backward pass
         y = batch["target"]
         y_hat = self(batch)["logits"]
-        loss = self.calculate_loss(y, y_hat, tag="train")
-        _ = self.calculate_metrics(y, y_hat, tag="train")
-        return loss
+        loss_1 = self.calculate_loss(y, y_hat, tag="train")
+        _ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
+        
+        self.manual_backward(loss_1 , optimizer)
+        optimizer.first_step(zero_grad=True)
+
+        # second forward-backward pass
+        loss_2 = self.calculate_loss(y, y_hat, tag="train")
+        _ = self.calculate_metrics(y, y_hat, tag="train") #unclear if needed
+        
+        self.manual_backward(loss_2 , optimizer)
+        optimizer.second_step(zero_grad=True)
+
+        return loss_1
 
     def validation_step(self, batch, batch_idx):
         y = batch["target"]
@@ -194,58 +218,10 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         _ = self.calculate_loss(y, y_hat, tag="test")
         _ = self.calculate_metrics(y, y_hat, tag="test")
         return y_hat, y
-
+        
     def configure_optimizers(self):
-        if self.custom_optimizer is None:
-            # Loading from the config
-            try:
-                self._optimizer = getattr(torch.optim, self.hparams.optimizer)
-                opt = self._optimizer(
-                    self.parameters(),
-                    lr=self.hparams.learning_rate,
-                    **self.hparams.optimizer_params,
-                )
-            except AttributeError as e:
-                logger.error(
-                    f"{self.hparams.optimizer} is not a valid optimizer defined in the torch.optim module"
-                )
-                raise e
-        else:
-            # Loading from custom fit arguments
-            self._optimizer = self.custom_optimizer
-
-            opt = self._optimizer(
-                self.parameters(),
-                lr=self.hparams.learning_rate,
-                **self.custom_optimizer_params,
-            )
-        if self.hparams.lr_scheduler is not None:
-            try:
-                self._lr_scheduler = getattr(
-                    torch.optim.lr_scheduler, self.hparams.lr_scheduler
-                )
-            except AttributeError as e:
-                logger.error(
-                    f"{self.hparams.lr_scheduler} is not a valid learning rate sheduler defined in the torch.optim.lr_scheduler module"
-                )
-                raise e
-            if isinstance(self._lr_scheduler, torch.optim.lr_scheduler._LRScheduler):
-                return {
-                    "optimizer": opt,
-                    "lr_scheduler": self._lr_scheduler(
-                        opt, **self.hparams.lr_scheduler_params
-                    ),
-                }
-            else:
-                return {
-                    "optimizer": opt,
-                    "lr_scheduler": self._lr_scheduler(
-                        opt, **self.hparams.lr_scheduler_params
-                    ),
-                    "monitor": self.hparams.lr_scheduler_monitor_metric,
-                }
-        else:
-            return opt
+        optim = SAM(self.parameters(), SGD, lr=0.01)
+        return optim
 
     def create_plotly_histogram(self, arr, name, bin_dict=None):
         fig = go.Figure()
