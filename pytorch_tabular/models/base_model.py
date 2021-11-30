@@ -225,8 +225,8 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         
         return loss
 
-    def training_step_end(self, batch, batch_idx):
-        pass
+#    def training_step_end(self, batch, batch_idx):
+#        pass
     
     def validation_step(self, batch, batch_idx):
         y = batch["target"]
