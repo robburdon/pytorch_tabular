@@ -13,8 +13,7 @@ import torch.nn as nn
 from omegaconf import DictConfig
 
 #my imports
-from sam import SAM
-from torch.optim import SGD
+from sam import SAMSGD
 
 #
 
@@ -60,7 +59,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         self._build_network()
         self._setup_loss()
         self._setup_metrics()
-        self.automatic_optimization = True
+        self.automatic_optimization = False
 
     @abstractmethod
     def _build_network(self):
@@ -188,7 +187,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
 #        _ = self.calculate_metrics(y, y_hat, tag="train")
 #        return loss
     
-    def training_step(self, batch, batch_idx):
+    def training_step_na(self, batch, batch_idx):
         
         optimizer = self.optimizers()
         
@@ -214,8 +213,23 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
 
         return loss
 
-    def training_step_end(self, batch, batch_idx):
-        pass
+    def training_step(self, batch, batch_idx):
+        optimizer = self.optimizers()
+        
+         def closure():            
+            optimizer.zero_grad()
+            y = batch["target"]
+            y_hat = self(batch)["logits"]  
+            loss = self.calculate_loss(y, y_hat, tag="train")
+            loss.backward()
+            return loss
+
+        loss = optimizer.step(closure)
+        
+        return loss
+
+#    def training_step_end(self, batch, batch_idx):
+#        pass
     
     def validation_step(self, batch, batch_idx):
         y = batch["target"]
@@ -232,7 +246,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         return y_hat, y
         
     def configure_optimizers(self):
-        optim = SAM(self.parameters(), SGD, lr=0.01)
+        optim = SAMSGD(self.parameters(), lr=1e-1, rho=0.05)
         return optim
 
     def create_plotly_histogram(self, arr, name, bin_dict=None):
