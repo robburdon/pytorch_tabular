@@ -220,7 +220,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
             optimizer.zero_grad()
             y = batch["target"]
             y_hat = self(batch)["logits"]  
-            loss = self.calculate_loss(y, y_hat, tag="train")
+            loss = self.calculate_loss(y, y_hat, tag="train").mean()
             loss.backward()
             return loss
 
