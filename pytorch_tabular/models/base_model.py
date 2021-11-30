@@ -188,11 +188,13 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
 #        _ = self.calculate_metrics(y, y_hat, tag="train")
 #        return loss
     
-    def training_step_old(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx):
         
         optimizer = self.optimizers()
         
         def closure():
+            y = batch["target"]
+            y_hat = self(batch)["logits"]
             loss = self.calculate_loss(y, y_hat, tag="train")
             self.manual_backward(loss, optimizer)
             return loss
@@ -214,7 +216,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
 
         return loss
     
-    def training_step(self, batch, batch_idx):
+    def training_step_na(self, batch, batch_idx):
         optimizer = self.optimizers()
         y = batch["target"]
         y_hat = self(batch)["logits"]
@@ -243,7 +245,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         return y_hat, y
         
     def configure_optimizers(self):
-        optim = SGD(self.parameters(), lr=0.01) #SAM(self.parameters(), SGD, lr=0.01)
+        optim = SAM(self.parameters(), SGD, lr=0.01)
         return optim
 
     def create_plotly_histogram(self, arr, name, bin_dict=None):
