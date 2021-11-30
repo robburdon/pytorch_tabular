@@ -216,7 +216,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
     def training_step(self, batch, batch_idx):
         optimizer = self.optimizers()
         
-         def closure():            
+        def closure():            
             optimizer.zero_grad()
             y = batch["target"]
             y_hat = self(batch)["logits"]  
