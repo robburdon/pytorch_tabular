@@ -247,7 +247,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         return y_hat, y
         
     def configure_optimizers(self):
-        optim = SAM(self.parameters(), Lamb, lr=0.01)
+        optim = SAM(self.parameters(), Lamb, lr=0.01, adaptive=True)
         return optim
 
     def create_plotly_histogram(self, arr, name, bin_dict=None):
