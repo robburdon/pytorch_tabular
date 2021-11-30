@@ -243,7 +243,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
         return y_hat, y
         
     def configure_optimizers(self):
-        optim = SGD() #SAM(self.parameters(), SGD, lr=0.01)
+        optim = SGD(self.parameters()) #SAM(self.parameters(), SGD, lr=0.01)
         return optim
 
     def create_plotly_histogram(self, arr, name, bin_dict=None):
