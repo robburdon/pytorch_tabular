@@ -255,11 +255,12 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
             # Loading from the config
             try:
                 self._optimizer = getattr(torch.optim, self.hparams.optimizer)
-                opt = self._optimizer(
-                    self.parameters(),
-                    lr=self.hparams.learning_rate,
-                    **self.hparams.optimizer_params,
-                )
+                #opt = self._optimizer(
+                #    self.parameters(),
+                #    lr=self.hparams.learning_rate,
+                #    **self.hparams.optimizer_params,
+                #)
+                opt = SAM(self.parameters(), self._optimizer, lr=self.hparams.learning_rate, **self.hparams.optimizer_params, adaptive=True)
             except AttributeError as e:
                 logger.error(
                     f"{self.hparams.optimizer} is not a valid optimizer defined in the torch.optim module"
@@ -269,11 +270,13 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
             # Loading from custom fit arguments
             self._optimizer = self.custom_optimizer
 
-            opt = self._optimizer(
-                self.parameters(),
-                lr=self.hparams.learning_rate,
-                **self.custom_optimizer_params,
-            )
+            #opt = self._optimizer(
+            #    self.parameters(),
+            #    lr=self.hparams.learning_rate,
+            #    **self.custom_optimizer_params,
+            #)
+            opt = SAM(self.parameters(), self._optimizer, lr=self.hparams.learning_rate, **self.custom_optimizer_params, adaptive=True)
+            
         if self.hparams.lr_scheduler is not None:
             try:
                 self._lr_scheduler = getattr(
@@ -286,21 +289,21 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
                 raise e
             if isinstance(self._lr_scheduler, torch.optim.lr_scheduler._LRScheduler):
                 return {
-                    "optimizer": SAM(self.parameters(), opt, adaptive=True),
+                    "optimizer": opt,
                     "lr_scheduler": self._lr_scheduler(
                         opt, **self.hparams.lr_scheduler_params
                     ),
                 }
             else:
                 return {
-                    "optimizer": SAM(self.parameters(), opt, adaptive=True),
+                    "optimizer": opt,
                     "lr_scheduler": self._lr_scheduler(
                         opt, **self.hparams.lr_scheduler_params
                     ),
                     "monitor": self.hparams.lr_scheduler_monitor_metric,
                 }
         else:
-            return SAM(self.parameters(), opt, adaptive=True)
+            return opt
     def create_plotly_histogram(self, arr, name, bin_dict=None):
         fig = go.Figure()
         for i in range(arr.shape[-1]):
