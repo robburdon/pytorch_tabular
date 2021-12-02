@@ -14,11 +14,9 @@ from omegaconf import DictConfig
 
 #my imports
 from sam import SAM
-from torch.optim import SGD
+#from torch.optim import SGD
 
-from torch_optimizer import Lamb
-
-#
+#from torch_optimizer import Lamb
 
 try:
     import wandb
@@ -291,14 +289,14 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
                 return {
                     "optimizer": opt,
                     "lr_scheduler": self._lr_scheduler(
-                        opt, **self.hparams.lr_scheduler_params
+                        opt.base_optimizer, **self.hparams.lr_scheduler_params
                     ),
                 }
             else:
                 return {
                     "optimizer": opt,
                     "lr_scheduler": self._lr_scheduler(
-                        opt, **self.hparams.lr_scheduler_params
+                        opt.base_optimizer, **self.hparams.lr_scheduler_params
                     ),
                     "monitor": self.hparams.lr_scheduler_monitor_metric,
                 }
