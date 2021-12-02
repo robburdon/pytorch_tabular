@@ -1,3 +1,5 @@
+Fork with SAM implemented in the optimiser- currently incomplete.
+
 ![PyTorch Tabular](docs/imgs/pytorch_tabular_logo.png)    
 
 [![pypi](https://img.shields.io/pypi/v/pytorch_tabular.svg)](https://pypi.python.org/pypi/pytorch_tabular)
