@@ -258,7 +258,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
                 #    lr=self.hparams.learning_rate,
                 #    **self.hparams.optimizer_params,
                 #)
-                opt = SAM(self.parameters(), self._optimizer, lr=self.hparams.learning_rate, **self.hparams.optimizer_params, adaptive=True)
+                opt = SAM(self.parameters(), self._optimizer, lr=self.hparams.learning_rate, **self.hparams.optimizer_params)
             except AttributeError as e:
                 logger.error(
                     f"{self.hparams.optimizer} is not a valid optimizer defined in the torch.optim module"
@@ -273,7 +273,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
             #    lr=self.hparams.learning_rate,
             #    **self.custom_optimizer_params,
             #)
-            opt = SAM(self.parameters(), self._optimizer, lr=self.hparams.learning_rate, **self.custom_optimizer_params, adaptive=True)
+            opt = SAM(self.parameters(), self._optimizer, lr=self.hparams.learning_rate, **self.custom_optimizer_params)
             
         if self.hparams.lr_scheduler is not None:
             try:
@@ -302,6 +302,7 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
                 }
         else:
             return opt
+
     def create_plotly_histogram(self, arr, name, bin_dict=None):
         fig = go.Figure()
         for i in range(arr.shape[-1]):
