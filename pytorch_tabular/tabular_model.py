@@ -234,7 +234,7 @@ class TabularModel:
             )
             callbacks.append(early_stop_callback)
         if self.config.SWA is not None:
-            swa_callback = pytorch_lightning.callbacks.StochasticWeightAveraging(
+            swa_callback = pl.callbacks.StochasticWeightAveraging(
                 swa_epoch_start=self.config.SWA_start, 
                 swa_lrs=None, #not bothered about implementing this yet
                 annealing_epochs=self.config.SWA_annealing_epochs, 
