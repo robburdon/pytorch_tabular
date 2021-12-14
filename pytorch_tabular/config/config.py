@@ -344,6 +344,17 @@ class TrainerConfig:
             "help": "Track and Log Gradient Norms in the logger. -1 by default means no tracking. 1 for the L1 norm, 2 for L2 norm, etc."
         },
     )
+    SWA: Optional[bool] = field(
+        default = False,
+    )
+    
+    SWA_start: Optional[float] = field(
+        default = 0.8,
+    )
+    
+    SWA_annealing_epochs: Optional[int] = field(
+        default = 10,
+    )
 
     def __post_init__(self):
         _validate_choices(self)
