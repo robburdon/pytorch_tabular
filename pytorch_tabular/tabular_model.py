@@ -233,6 +233,14 @@ class TabularModel:
                 mode=self.config.early_stopping_mode,
             )
             callbacks.append(early_stop_callback)
+        if self.config.SWA is not None:
+            swa_callback = pytorch_lightning.callbacks.StochasticWeightAveraging(
+                swa_epoch_start=self.config.SWA_start, 
+                swa_lrs=None, #not bothered about implementing this yet
+                annealing_epochs=self.config.SWA_annealing_epochs, 
+                annealing_strategy='cos' #not bothered about implementing this yet
+            )
+            callbacks.append(swa_callback)
         if self.config.checkpoints:
             ckpt_name = f"{self.name}-{self.uid}"
             ckpt_name = ckpt_name.replace(" ", "_") + "_{epoch}-{valid_loss:.2f}"
