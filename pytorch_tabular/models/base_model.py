@@ -289,14 +289,14 @@ class BaseModel(pl.LightningModule, metaclass=ABCMeta):
                 return {
                     "optimizer": opt,
                     "lr_scheduler": self._lr_scheduler(
-                        opt.base_optimizer, **self.hparams.lr_scheduler_params
+                        opt, **self.hparams.lr_scheduler_params
                     ),
                 }
             else:
                 return {
                     "optimizer": opt,
                     "lr_scheduler": self._lr_scheduler(
-                        opt.base_optimizer, **self.hparams.lr_scheduler_params
+                        opt, **self.hparams.lr_scheduler_params
                     ),
                     "monitor": self.hparams.lr_scheduler_monitor_metric,
                 }
