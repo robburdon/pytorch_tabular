@@ -355,6 +355,9 @@ class TrainerConfig:
     SWA_annealing_epochs: Optional[int] = field(
         default = 10,
     )
+    SWA_lr: Optional[float] = field(
+        default = 1e-3,
+    )
 
     def __post_init__(self):
         _validate_choices(self)
