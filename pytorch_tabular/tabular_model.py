@@ -236,9 +236,9 @@ class TabularModel:
         if self.config.SWA is not None:
             swa_callback = pl.callbacks.StochasticWeightAveraging(
                 swa_epoch_start=self.config.SWA_start, 
-                swa_lrs=None, #not bothered about implementing this yet
+                swa_lrs=self.config.SWA_lr,
                 annealing_epochs=self.config.SWA_annealing_epochs, 
-                annealing_strategy='cos' #not bothered about implementing this yet
+                annealing_strategy='linear' #not bothered about implementing this yet
             )
             callbacks.append(swa_callback)
         if self.config.checkpoints:
