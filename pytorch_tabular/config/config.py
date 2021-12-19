@@ -347,7 +347,7 @@ class TrainerConfig:
     SWA: Optional[bool] = field(
         default = False,
     )
-    SWA_start: Optional[Union[float, int]] = field(  #technically redundant but want to be clear that int is supported and has separate function
+    SWA_start: Optional[float] = field(  #int is supported and has separate function
         default = 0.8,
     )
     SWA_annealing_epochs: Optional[int] = field(
