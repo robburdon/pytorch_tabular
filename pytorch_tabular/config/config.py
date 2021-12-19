@@ -347,11 +347,9 @@ class TrainerConfig:
     SWA: Optional[bool] = field(
         default = False,
     )
-    
-    SWA_start: Optional[float] = field(
+    SWA_start: Optional[number] = field(
         default = 0.8,
     )
-    
     SWA_annealing_epochs: Optional[int] = field(
         default = 10,
     )
